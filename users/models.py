@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     matric_number = models.CharField(max_length=20, null=True)
-    has_voted = models.BooleanField(default=False)
+    voted_positions = models.ManyToManyField("polls.Position")
 
     def save(self, *args, **kwargs):
         self.first_name = str.capitalize(self.first_name)

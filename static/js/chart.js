@@ -1,9 +1,45 @@
-let presidentChart;
-let vicePresidentChart;
+{/* <h3 class="text-lg font-bold mb-4">President Votes</h3>
+<canvas class="canvas" id="" width="400" height="400"></canvas> */}
 
-function fetchPresidentData() {
-    console.log("Let's go - President Data");
-    fetch('/get-poll-data/president/')
+const getPollPositions = async () => {
+    try {
+        const response = await fetch('/get-positions/');
+        if (!response.ok) { throw new Error('Network response was not ok'); }
+        const data = await response.json();
+        handleMonitorPosition(data);
+    } catch (error) {
+        console.error('There was a problem fetching the data:', error);
+    }
+};
+function handleMonitorPosition(positionsData) {
+    let positions = positionsData.positions;
+    const monitorPositionListContainer = document.getElementById("chart-container");
+    if (positions.length > 0) {
+        // Format each position and join them into a single string
+        const formattedPositions = positions
+            .map((singlePositions) => formatCanvasContainer(singlePositions.slug))
+            .join('');
+        // Update the position list container with the formatted positions HTML
+        monitorPositionListContainer.innerHTML = formattedPositions;
+        positions.forEach(positions => {
+            fetchVotingData(positions.slug)
+        });
+    } else {
+        // Display a message when no positions are available
+        monitorPositionListContainer.innerHTML = '<h5>Oops! No position has been added</h5>';
+    }
+
+}
+
+function formatCanvasContainer(position_slug) {
+    return `<h3 class="text-lg font-bold mb-4">${reverseSlug(position_slug)}</h3>
+            <canvas id="myChart-${position_slug}" width="100" height="20"></canvas>
+            <hr/>
+            `
+}
+
+function fetchVotingData(position_slug) {
+    fetch(`/get-poll-data/${position_slug}/`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -12,68 +48,53 @@ function fetchPresidentData() {
         })
         .then(data => {
             // Work with the JSON data here
-            console.log(data);
-            handleChartData(data, 'myChart-president');
+            handleChartData(data, position_slug);
         })
         .catch(error => {
             console.error('There was a problem fetching the data:', error);
         });
 }
 
-function fetchVicePresidentData() {
-    console.log("Let's go - Vice President Data");
-    fetch('/get-poll-data/vice-president/')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Work with the JSON data here
-            console.log(data);
-            handleChartData(data, 'myChart-vice-president');
-        })
-        .catch(error => {
-            console.error('There was a problem fetching the data:', error);
-        });
-}
+function handleChartData(votingData, position_slug) {
+    // Get the canvas element
 
-function handleChartData(pollData, chartId) {
-    var candidateNames = [];
-    var candidateVotes = [];
-    const isNull = (n) => n === null ? 0 : n;
-    pollData.forEach(function (item) {
-        candidateNames.push(item.candidate.name);
-        candidateVotes.push(isNull(item.vote));
+    var candidatesNameList = [];
+    var candidatesVoteList = [];
+
+    votingData.forEach(votingData => {
+        var candidateName = votingData.candidate.name;
+        var candidateVote = votingData.vote;
+        candidatesNameList.push(candidateName);
+        candidatesVoteList.push(candidateVote);
     });
-    console.log(candidateNames);
-    console.log(candidateVotes);
-
-    const data = {
-        labels: candidateNames,
-        datasets: [{
-            label: 'Votes',
-            data: candidateVotes,
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 100, 0.2)',
-                'rgba(255, 206, 86, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 100, 1)',
-                'rgba(255, 206, 86, 1)'
-            ],
-            borderWidth: 1
-        }]
-    };
-
-    const config = {
-        type: 'bar',
-        data: data,
+    var ctx = document.getElementById(`myChart-${position_slug}`).getContext('2d');
+    //Create the chart
+    var myChart = new Chart(ctx, {
+        type: 'bar', // Change the type of chart here (e.g., bar, line, pie, etc.)
+        data: {
+            labels: candidatesNameList,
+            datasets: [{
+                label: '# of Votes',
+                data: candidatesVoteList,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
         options: {
             scales: {
                 y: {
@@ -81,26 +102,9 @@ function handleChartData(pollData, chartId) {
                 }
             }
         }
-    };
-
-    if (chartId === 'myChart-president') {
-        if (!presidentChart) {
-            presidentChart = new Chart(document.getElementById(chartId), config);
-        } else {
-            presidentChart.data = data;
-            presidentChart.update();
-        }
-    } else if (chartId === 'myChart-vice-president') {
-        if (!vicePresidentChart) {
-            vicePresidentChart = new Chart(document.getElementById(chartId), config);
-        } else {
-            vicePresidentChart.data = data;
-            vicePresidentChart.update();
-        }
-    }
+    });
 }
 
-setInterval(fetchPresidentData, 36000);
-setInterval(fetchVicePresidentData, 36000);
-fetchPresidentData()
-fetchVicePresidentData()
+
+setInterval(getPollPositions, 30000);
+getPollPositions();

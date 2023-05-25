@@ -15,6 +15,11 @@ class CandidateAdmin(admin.ModelAdmin):
     get_candidate_position.short_description = "Position"
 
 
-@admin.register(models.Position, models.Poll, models.Vote, models.ToggleVoting)
+@admin.register(models.Position, models.ToggleVoting)
 class ItemAdmin(admin.ModelAdmin):
     list_display = ("__str__", "created_at")
+
+
+@admin.register(models.Poll)
+class PollAdmin(admin.ModelAdmin):
+    list_display = ("candidate", "position", "vote")

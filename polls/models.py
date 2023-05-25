@@ -29,7 +29,10 @@ class Candidate(AbstractTimestampModel):
     image = models.ImageField(upload_to="candidates/")
 
     def __str__(self):
-        return self.name
+        try:
+            return f"{self.name} - {self.polls.first().position}"
+        except AttributeError:
+            return self.name
 
 
 class Poll(AbstractTimestampModel):
@@ -45,14 +48,6 @@ class Poll(AbstractTimestampModel):
         if self.id:
             self.vote = self.user.count()
         return super().save(*args, **kwargs)
-
-
-class Vote(AbstractTimestampModel):
-    user = models.ForeignKey("users.User", related_name="votes", on_delete=models.CASCADE)
-    candidate = models.ManyToManyField(Candidate, related_name="votes")
-
-    def __str__(self):
-        return f"{self.user}"
 
 
 class ToggleVoting(AbstractTimestampModel):

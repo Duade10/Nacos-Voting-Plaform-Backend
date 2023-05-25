@@ -8,18 +8,106 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	{% tailwind_css %}
+	<style>
+		.sidebar {
+			width: calc(25vw);
+			background-color: #F8FAFC;
+			padding: 20px;
+			height: 100%;
+			position: fixed;
+			overflow: auto;
+			transition: transform 0.3s ease;
+			border-radius: 10px;
+		}
+
+		.sidebar a {
+			display: block;
+			color: #000;
+			padding: 8px 16px;
+			text-decoration: none;
+			border-radius: 5px;
+			margin-bottom: 10px;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+			transition: background-color 0.3s ease;
+		}
+
+		.sidebar a.active {
+			background-color: #4CAF50;
+			color: white;
+		}
+
+		.sidebar a:hover:not(.active) {
+			background-color: #555;
+			color: white;
+		}
+
+		.content {
+			margin-left: calc(25vw);
+		}
+
+		.menu-toggle {
+			display: none;
+		}
+
+		button {
+			background: #4CAF50;
+			color: white;
+			border-radius: 2px;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+
+		@media (max-width: 768px) {
+			.sidebar {
+				transform: translateX(-100%);
+				box-shadow: 1 4px 8px rgba(15, 14, 14, 0.1);
+				width: max-content;
+			}
+
+			.sidebar a {
+				width: 10rem;
+			}
+
+			.content {
+				margin-left: 0;
+			}
+
+			.menu-toggle {
+				display: block;
+				position: fixed;
+				top: 20px;
+				left: 20px;
+				z-index: 1;
+				background-color: #f1f1f1;
+				border: none;
+				color: #000;
+				padding: 8px 10px;
+				font-size: 20px;
+				cursor: pointer;
+			}
+
+			.sidebar.active {
+				transform: translateX(0%);
+			}
+		}
+	</style>
+	{% block css %}
+
+	{% endblock css %}
+	<button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+	<div class="sidebar" id="sidebar">
+	</div>
 </head>
-
-
 
 <body class="{% if '/sign-in/' in request.path %}bg-gray-50 dark:bg-gray-900{% endif %} 
 	bg-slate-50 md:px-20 px-3 py-4 mx-auto">
 	{% block content %}
 
 	{% endblock content %}
+	<script src="{% static 'js/main.js' %}"></script>
 	{% block js %}
 	{% endblock js %}
+
 </body>
 
-
 </html>
+</head>

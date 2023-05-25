@@ -13,10 +13,9 @@ class CustomUserAdmin(UserAdmin):
         "email",
         "is_staff",
         "is_superuser",
-        "has_voted",
     )
     # list_filter = ("superhost", "language", "currency")
 
-    fieldsets = UserAdmin.fieldsets + (("Custom User Fields", {"fields": ("matric_number", "has_voted")}),)
+    fieldsets = UserAdmin.fieldsets + (("Custom User Fields", {"fields": ("matric_number", "voted_positions")}),)
 
     search_fields = ("username__icontains", "first_name")

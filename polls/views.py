@@ -1,6 +1,9 @@
+from django.core.cache import cache
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_page
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -16,11 +19,24 @@ class Index(LoggedInOnlyView, View):
 
 
 class GetPollData(APIView):
+    @method_decorator(cache_page(60))  # Cache for 60 seconds
     def get(self, request, slug, *args, **kwargs):
         try:
+            # Check if the data is available in the cache
+            cache_key = f"poll_data_{slug}"
+            cached_data = cache.get(cache_key)
+            if cached_data is not None:
+                return Response(cached_data, status=status.HTTP_200_OK)
+
+            # If data is not in the cache, retrieve it from the database
             polls = models.Poll.objects.filter(position__slug=slug)
             serializer = serializers.PollSerializer(polls, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            data = serializer.data
+
+            # Store the data in the cache
+            cache.set(cache_key, data)
+
+            return Response(data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -30,22 +46,19 @@ class Vote(APIView):
 
     def post(self, request, *args, **kwargs):
         voting_allowed = models.ToggleVoting.objects.get(id=1)
+        position = request.data.get("position", None)
+        candidate_id = request.data.get("candidate", None)
         if voting_allowed:
             current_user = request.user
-            if not current_user.has_voted:
-                president_uuid = request.data.get("president", None)
-                vice_president_uuid = request.data.get("vpresident", None)
-
-                if president_uuid and vice_president_uuid:
-                    president = get_object_or_404(models.Candidate, uuid=president_uuid)
-                    vice_president = get_object_or_404(models.Candidate, uuid=vice_president_uuid)
-
+            voted_positions_slug = [position.slug for position in current_user.voted_positions.all()]
+            if position not in voted_positions_slug:
+                if candidate_id:
+                    candidate = get_object_or_404(models.Candidate, uuid=candidate_id)
                     with transaction.atomic():
-                        self.update_poll(president, current_user)
-                        self.update_poll(vice_president, current_user)
-                        self.create_vote(current_user, president, vice_president)
+                        self.update_poll(candidate, current_user)
                         current_user.has_voted = True
                         current_user.save()
+                        current_user.voted_positions.add(models.Position.objects.get(slug=position))
                         message = "Done"
             else:
                 message = "You have already voted."
@@ -59,15 +72,6 @@ class Vote(APIView):
         poll.user.add(user)
         poll.vote = poll.user.count()
         poll.save()
-
-    def create_vote(self, user, president, vice_president):
-        try:
-            vote = models.Vote.objects.get(user=user)
-        except models.Vote.DoesNotExist:
-            vote = models.Vote.objects.create(user=user)
-        vote.candidate.add(president)
-        vote.candidate.add(vice_president)
-        vote.save()
 
 
 class MonitorVotes(LoggedInOnlyView, View):
@@ -92,3 +96,12 @@ class ToggleVoting(LoggedInOnlyView, View):
             # messages.error(request, "Permission Denied")
             pass
         return redirect(url)
+
+
+class getPositions(APIView):
+    def get(self, *args, **kwargs):
+        positions = models.Position.objects.all()
+        serializer = serializers.PositionSerializer(positions, many=True)
+        voted_positions = [position.slug for position in self.request.user.voted_positions.all()]
+        data = {"positions": serializer.data, "voted_positions": voted_positions}
+        return Response(data, status=status.HTTP_200_OK)

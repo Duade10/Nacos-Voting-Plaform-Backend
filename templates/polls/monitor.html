@@ -1,30 +1,37 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block css %}
+<style>
+    .sidebar {
+        display: none;
+    }
+
+    .content {
+        margin-left: 0;
+    }
+</style>
+{% endblock css %}
 {% block content %}
-<div class="space-y-5">
-    {% if user.is_authenticated %}
-    <span><a href="{% url 'users:logout' %}">Logout</a></span>
-    {% endif %}
-    <span><a class="font-bold p-2 bg-green-600 text-white rounded-lg" href="/">Vote</a></span>
-    <span><a class="font-bold p-2 bg-green-600 text-white rounded-lg" href="{% url 'polls:toggle_voting' %}">Toggle
-            Voting</a></span>
+<div class="content">
+    <div class="space-y-5">
+        {% if user.is_authenticated %}
+        <span><a href="{% url 'users:logout' %}">Logout</a></span>
+        {% endif %}
+        <span><a class="font-bold p-2 bg-green-600 text-white rounded-lg" href="/">Vote</a></span>
+        <span><a class="font-bold p-2 bg-green-600 text-white rounded-lg" href="{% url 'polls:toggle_voting' %}">Toggle
+                Voting</a></span>
 
-    <h1 class="md:text-5xl text-xl font-bold">👋 Hey {{user.first_name}}</h1>
-    {% if voting_allowed.voting %}
-    <h3>Voting is opened</h3>
-    {% else %}
-    <h3>Voting is closed</h3>
-    {% endif %}
+        <h1 class="md:text-5xl text-xl font-bold">👋 Hey {{user.first_name}}</h1>
+        {% if voting_allowed.voting %}
+        <h3>Voting is opened</h3>
+        {% else %}
+        <h3>Voting is closed</h3>
+        {% endif %}
+    </div>
+
+    <div class="mt-8" id="chart-container">
+    </div>
 </div>
-
-<div class="mt-8">
-    <h3 class="text-lg font-bold mb-4">President Votes</h3>
-    <canvas id="myChart-president" height="65"></canvas>
-    <hr class="my-8">
-    <h3 class="text-lg font-bold mb-4">Vice President Votes</h3>
-    <canvas id="myChart-vice-president" height="65"></canvas>
-</div>
-
 
 
 {% endblock content %}

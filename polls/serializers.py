@@ -11,9 +11,7 @@ class CandidateSerializer(ModelSerializer):
 class PositionSerializer(ModelSerializer):
     class Meta:
         model = models.Position
-        fields = [
-            "title",
-        ]
+        fields = ["title", "slug"]
 
 
 class PollSerializer(ModelSerializer):

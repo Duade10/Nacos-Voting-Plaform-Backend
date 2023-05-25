@@ -1,47 +1,36 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="space-y-5 ">
-    {% if user.is_authenticated %}
-    <span><a href="{% url 'users:logout' %}">Logout</a></span>
-    {% endif %}
-    {% if user.is_staff %}
-    <span>
-        <a class="font-bold p-2 bg-green-600 text-white rounded-md" href="{% url 'polls:monitor' %}">
-            Monitor Poll
-        </a>
-    </span>
-    {% endif %}
-    <h1 class="md:text-5xl text-xl font-bold">👋 Hey {{user.first_name}}</h1>
-    <p class="md:text-xl text-sm ">Select your candidates.</p>
+<div class="content">
+    <div class="space-y-5">
+        <h1 class="md:text-5xl text-xl font-bold">👋 Hey {{user.first_name}}</h1>
+        {% if user.is_staff %}
+        <button class="font-bold p-5">
+            <a class="p-5" href="/monitor/">Monitor Poll</a>
+        </button>
+        {% endif %}
 
+        {% if voting_allowed.voting %}
+        <h3>Voting is opened</h3>
+        {% else %}
+        <h3>Voting is closed</h3>
+        {% endif %}
+    </div>
+    <form id="vote">
+        <div id="social" class="mt-10">
+            <div>
+                <h1 class="text-2xl font-bold py-2" id="current_position"></h1>
+                <hr />
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 my-9 gap-6" id="card-container"></div>
+            <div class="flex justify-center mb-5">
+                <button class="px-5 py-2 bg-green-700">Vote</button>
+            </div>
+        </div>
+    </form>
 </div>
-<form action="" method="POST" id="voting-form">
-    <div class="mt-10">
-        <div>
-            <h1 class="text-2xl font-bold py-2">President Candidate</h1>
-            <hr>
-        </div>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 my-9 gap-6" id="card-container"></div>
-    </div>
-
-    <div class="mt-10">
-        <div>
-            <h1 class="text-2xl font-bold py-2">VicePresidents</h1>
-            <hr>
-        </div>
-        <div id="Vp-container" class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 my-9 gap-6">
-        </div>
-    </div>
-    <button id="signInBtn"
-        class="w-full bg-green-600 text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
-        Submit
-    </button>
-</form>
-
-
 
 {% endblock content %}
 {% block js %}
-<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/poll.js' %}"></script>
 {% endblock js %}

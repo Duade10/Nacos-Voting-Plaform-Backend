@@ -1,201 +1,91 @@
-const getPresidentData = () => {
-    fetch('/get-poll-data/president/')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
+// Function to fetch positions data from the server
+const getPositions = async () => {
+    try {
+        // Send a GET request to '/get-positions/' endpoint
+        const response = await fetch('/get-positions/');
 
-            handlePresidentData(data);
-        })
-        .catch(error => {
-            console.error('There was a problem fetching the data:', error);
-        });
-}
-const handlePresidentData = (presidentData) => {
-    // Select the card container
-    const cardContainer = document.getElementById("card-container");
-
-    // Loop through the card data and create the cards
-    for (let cardData of presidentData) {
-        // Create a div element to hold the card
-        const card = document.createElement("div");
-        card.classList.add("mb-4", "bg-white", "border", "border-gray-200", "rounded-lg", "shadow", "dark:bg-gray-800", "dark:border-gray-700");
-
-        // Create an img element for the card image
-        const cardImage = document.createElement("img");
-        cardImage.classList.add("rounded-t-lg", "w-full", "h-72");
-        cardImage.setAttribute("src", cardData.candidate.image);
-        cardImage.setAttribute("alt", cardData.candidate.name);
-
-
-        // Create a div element for the card content
-        const cardContent = document.createElement("div");
-        cardContent.classList.add("p-5");
-
-        // Create an h5 element for the card title
-        const cardTitle = document.createElement("h5");
-        cardTitle.classList.add("mb-2", "text-2xl", "font-bold", "tracking-tight", "text-gray-900", "dark:text-white");
-        cardTitle.textContent = cardData.candidate.name;
-
-        // Create a p element for the card description
-        const cardDescription = document.createElement("p");
-        cardDescription.classList.add("mb-3", "font-normal", "text-gray-700", "dark:text-gray-400");
-        cardDescription.textContent = cardData.position.title;
-
-        // Create an input element for the card button
-        const cardButton = document.createElement("input");
-        cardButton.classList.add("h-8", "w-8");
-        cardButton.setAttribute("type", "radio");
-        cardButton.setAttribute("name", "president");
-        cardButton.setAttribute("value", cardData.candidate.uuid);
-        cardButton.setAttribute("id", cardData.position.title);
-        cardButton.setAttribute("onclick", "disableOtherRadio()");
-
-        // Create a label element for the card button
-        const cardButtonLabel = document.createElement("label");
-        cardButtonLabel.classList.add("radio");
-        cardButtonLabel.setAttribute("for", "president");
-
-        // Append the card image, title, description, button and button label to the card content div
-        cardContent.appendChild(cardTitle);
-        cardContent.appendChild(cardDescription);
-        cardContent.appendChild(cardButton);
-        cardContent.appendChild(cardButtonLabel);
-
-        // Append the card image and content to the card div
-        card.appendChild(cardImage);
-        card.appendChild(cardContent);
-
-        // Append the card to the card container
-        cardContainer.appendChild(card);
-    }
-}
-
-
-getPresidentData()
-const getVPresidentData = () => {
-    fetch('/get-poll-data/vice-president/')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-
-            handleVPresidentData(data);
-        })
-        .catch(error => {
-            console.error('There was a problem fetching the data:', error);
-        });
-}
-const handleVPresidentData = (vPresidentData) => {
-    // Select the card container
-    const VpContainer = document.getElementById("Vp-container");
-
-    // Loop through the card data and create the cards
-    for (let cardData of vPresidentData) {
-        // Create a div element to hold the card
-        const card = document.createElement("div");
-        card.classList.add("mb-4", "bg-white", "border", "border-gray-200", "rounded-lg", "shadow", "dark:bg-gray-800", "dark:border-gray-700");
-        // Create an img element for the card image
-        const cardImage = document.createElement("img");
-        cardImage.classList.add("rounded-t-lg", "w-full", "h-72");
-        cardImage.setAttribute("src", cardData.candidate.image);
-        cardImage.setAttribute("alt", cardData.candidate.name);
-
-        // Create a div element for the card content
-        const cardContent = document.createElement("div");
-        cardContent.classList.add("p-5");
-
-        // Create an h5 element for the card title
-        const cardTitle = document.createElement("h5");
-        cardTitle.classList.add("mb-2", "text-2xl", "font-bold", "tracking-tight", "text-gray-900", "dark:text-white");
-        cardTitle.textContent = cardData.candidate.name;
-
-        // Create a p element for the card description
-        const cardDescription = document.createElement("p");
-        cardDescription.classList.add("mb-3", "font-normal", "text-gray-700", "dark:text-gray-400");
-        cardDescription.textContent = cardData.position.title;
-
-        // Create an input element for the card button
-        const cardButton = document.createElement("input");
-        cardButton.classList.add("h-8", "w-8");
-        cardButton.setAttribute("type", "radio");
-        cardButton.setAttribute("name", "vpresident");
-        cardButton.setAttribute("id", cardData.candidate.id);
-        cardButton.setAttribute("value", cardData.candidate.uuid);
-        cardButton.setAttribute("onclick", "disableOtherRadio()");
-
-        // Create a label element for the card button
-        const cardButtonLabel = document.createElement("label");
-        cardButtonLabel.classList.add("radio");
-        cardButtonLabel.setAttribute("for", "vpresident");
-
-        // Append the card image, title, description, button and button label to the card content div
-        cardContent.appendChild(cardTitle);
-        cardContent.appendChild(cardDescription);
-        cardContent.appendChild(cardButton);
-        cardContent.appendChild(cardButtonLabel);
-
-        // Append the card image and content to the card div
-        card.appendChild(cardImage);
-        card.appendChild(cardContent);
-
-        // Append the card to the card container
-        VpContainer.appendChild(card);
-    }
-    console.log("Just ran")
-}
-getVPresidentData();
-
-
-
-const form = document.getElementById("voting-form");
-form.addEventListener("submit", submitForm);
-
-function submitForm(event) {
-    event.preventDefault();
-
-    const presidentValue = document.querySelector('input[name="president"]:checked').value;
-    const vpresidentValue = document.querySelector('input[name="vpresident"]:checked').value;
-
-    fetch("vote/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json;charset=UTF-8",
-            "X-CSRFToken": getCookie("csrftoken"),
-        },
-        body: JSON.stringify({
-            president: presidentValue,
-            vpresident: vpresidentValue,
-        }),
-    })
-        .then(response => response.json())
-        .then(data => {
-            const message = data.message;
-            alert(message);
-        })
-        .catch(error => console.error(error));
-}
-
-
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+        // Check if the response is successful
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
+        const data = await response.json();
+
+        // Handle the positions data
+        handlePositions(data);
+
+        // If the current location is '/monitor/', handle monitor position data
+        if (location.pathname === '/monitor/') {
+            handleMonitorPosition(data);
+        }
+    } catch (error) {
+        console.error('There was a problem fetching the data:', error);
     }
-    return cookieValue;
+};
+
+// Function to reverse the given slug
+function reverseSlug(slug) {
+    // Split the slug by '-' and capitalize the first letter of each word
+    const reversedSlug = slug
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    return `${reversedSlug}`;
 }
 
+// Function to check if the given slug is active
+// Get the slug from the URL hash
+// Return 'active' if the slug matches the URL slug, otherwise return an empty string
+function checkIfActive(slug) {
+    const urlSlug = location.hash.slice(1);
+    return slug === urlSlug ? 'active' : '';
+}
+
+// Function to format a single position
+// Check if the position is active
+// Function to determine if the position has been voted
+function formatPosition(singlePosition, votedPositions) {
+    const activeClass = checkIfActive(singlePosition.slug);
+    const isActive = (slug) => votedPositions.includes(slug.slug) ? "Voted" : "Not Voted";
+    // Check if the position has been voted
+    const checkPosition = isActive(singlePosition);
+    // Generate the formatted position HTML
+    return `<a class="${activeClass}" onclick="getPollData('${singlePosition.slug}');" href="#${singlePosition.slug}">${singlePosition.title} (${checkPosition})</a>`;
+}
+
+// Function to handle the positions data
+const handlePositions = (data) => {
+    // Get the position list container element
+    const positionListContainer = document.getElementById('sidebar');
+
+    // Extract positions and voted positions from the data
+    let positions = data.positions;
+    let votedPositions = data.voted_positions;
+
+
+    if (positions.length > 0) {
+        // Format each position and join them into a single string
+        const formattedPositions = positions
+            .map((singlePosition) => formatPosition(singlePosition, votedPositions))
+            .join('');
+
+        // Update the position list container with the formatted positions HTML
+        positionListContainer.innerHTML = formattedPositions;
+    } else {
+        // Display a message when no positions are available
+        positionListContainer.innerHTML = '<h5>Oops! No position has been added</h5>';
+    }
+
+    // Add links for 'Monitor' and 'Logout' at the end of the position list container
+    positionListContainer.innerHTML += `<a class="bg-dark" href="users/logout/">Logout</a>`;
+};
+
+// Function to toggle the sidebar visibility
+function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("active");
+}
+
+// Call getPositions() if the current location is not '/users/sign-in/'
+if (location.pathname === '/users/sign-in/') { }
+else if (location.pathname === '/monitor/') { }
+else { getPositions(); }

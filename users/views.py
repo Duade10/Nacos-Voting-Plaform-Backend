@@ -2,7 +2,8 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import FormView
+from django.views.generic import FormView, View
+from django.http import JsonResponse
 
 from . import forms, mixins, models
 
@@ -43,3 +44,15 @@ class UserCreationView(mixins.LoggedOutOnlyView, FormView):
         user = models.User.objects.filter(matric_number, first_name, last_name)
         if user.exists():
             return redirect("users/create.html")
+
+
+class HasUserVoted(mixins.LoggedInOnlyView, View):
+    def get(self, request, position_slug, *args, **kwargs):
+        current_user = request.user
+        voted_position_slugs = [position.slug for position in current_user.voted_positions.all()]
+        print(position_slug in voted_position_slugs)
+        if position_slug in voted_position_slugs:
+            result = True
+        else:
+            result = False
+        return JsonResponse({"result": result})

@@ -8,4 +8,5 @@ urlpatterns = [
     path("logout/", views.log_out, name="logout"),
     path("sign-in/", views.LoginView.as_view(), name="signin"),
     path("voter-creation/", views.UserCreationView.as_view(), name="sign_up"),
+    path("has-voted/<str:position_slug>/", views.HasUserVoted.as_view(), name="has_voted"),
 ]
