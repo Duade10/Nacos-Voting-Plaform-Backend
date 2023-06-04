@@ -10,7 +10,7 @@
 	{% tailwind_css %}
 	<style>
 		.sidebar {
-			width: calc(25vw);
+			width: calc(20vw);
 			background-color: #F8FAFC;
 			padding: 20px;
 			height: 100%;
@@ -42,7 +42,7 @@
 		}
 
 		.content {
-			margin-left: calc(25vw);
+			margin-left: calc(20vw);
 		}
 
 		.menu-toggle {
@@ -87,6 +87,28 @@
 
 			.sidebar.active {
 				transform: translateX(0%);
+			}
+		}
+
+		.loader {
+			border: 16px solid #374151;
+			/* Light grey */
+			border-top: 16px solid #f3f3f3;
+			/* Blue */
+			border-radius: 50%;
+			width: 120px;
+			height: 120px;
+			animation: spin 2s linear infinite;
+
+		}
+
+		@keyframes spin {
+			0% {
+				transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
 			}
 		}
 	</style>

@@ -1,18 +1,26 @@
-// Function to fetch positions data from the server
+// Function to fetch positions data from the server with a timeout
 const getPositions = async () => {
     try {
-        // Send a GET request to '/get-positions/' endpoint
-        const response = await fetch('/get-positions/');
-
-        // Check if the response is successful
+        // Set the timeout duration (in milliseconds)
+        const timeoutDuration = 5000; // 5 seconds
+        // Create a promise that resolves after the timeout duration
+        const timeoutPromise = new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({ timeout: true }); // Resolve with a timeout flag
+            }, timeoutDuration);
+        });
+        const fetchPromise = fetch('/get-positions/');
+        // Wait for either the fetch promise or the timeout promise to resolve
+        const response = await Promise.race([fetchPromise, timeoutPromise]);
+        if (response.timeout) {
+            alert('Request timed out. Unstable Network Connection');
+            throw new Error('Request timed out');
+        }
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
         const data = await response.json();
-
-        // Handle the positions data
         handlePositions(data);
-
         // If the current location is '/monitor/', handle monitor position data
         if (location.pathname === '/monitor/') {
             handleMonitorPosition(data);
@@ -21,6 +29,7 @@ const getPositions = async () => {
         console.error('There was a problem fetching the data:', error);
     }
 };
+
 
 // Function to reverse the given slug
 function reverseSlug(slug) {

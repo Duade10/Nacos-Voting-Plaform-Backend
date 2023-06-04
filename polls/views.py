@@ -48,6 +48,7 @@ class Vote(APIView):
         voting_allowed = models.ToggleVoting.objects.get(id=1)
         position = request.data.get("position", None)
         candidate_id = request.data.get("candidate", None)
+        next_position = None
         if voting_allowed:
             current_user = request.user
             voted_positions_slug = [position.slug for position in current_user.voted_positions.all()]
@@ -60,11 +61,17 @@ class Vote(APIView):
                         current_user.save()
                         current_user.voted_positions.add(models.Position.objects.get(slug=position))
                         message = "Done"
+                        positions = [position.slug for position in models.Position.objects.all()]
+                        current_position_index = positions.index(position)
+                        if current_position_index < len(positions) - 1:
+                            next_position = positions[current_position_index + 1]
+                        else:
+                            next_position = None
             else:
                 message = "You have already voted."
         else:
             message = "Voting has closed."
-        data = dict(message=message)
+        data = dict(message=message, next_position=next_position)
         return Response(data)
 
     def update_poll(self, candidate, user):

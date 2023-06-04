@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
+
+
 <div class="content">
     <div class="space-y-5">
         <h1 class="md:text-5xl text-xl font-bold">👋 Hey {{user.first_name}}</h1>
@@ -17,6 +19,9 @@
         {% endif %}
     </div>
     <form id="vote">
+        <div id="preloder" class="flex justify-center h-screen">
+            <div class="loader text-center"></div>
+        </div>
         <div id="social" class="mt-10">
             <div>
                 <h1 class="text-2xl font-bold py-2" id="current_position"></h1>

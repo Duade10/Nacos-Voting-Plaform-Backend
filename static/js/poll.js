@@ -1,6 +1,21 @@
-const getPollData = (pollSlug) => {
-    const isNull = (n) => n === undefined ? 'president' : n;
-    var checkedPollSlug = isNull(pollSlug);
+function toggleLoader(action) {
+    const social = document.getElementById("social");
+    const preloder = document.getElementById("preloder");
+    if (action === "start") {
+        social.style.display = "none";
+        preloder.style.display = "block";
+    }
+    else if (action === "stop") {
+        social.style.display = "block";
+        preloder.style.display = "none";
+    }
+}
+function getPollData(pollSlug) {
+    console.log(pollSlug);
+    toggleLoader("start");
+    const isNull = (n) => (n === undefined || null ? 'president' : n);
+    const checkedPollSlug = isNull(pollSlug);
+
     fetch(`/get-poll-data/${checkedPollSlug}/`)
         .then(response => {
             if (!response.ok) {
@@ -9,21 +24,25 @@ const getPollData = (pollSlug) => {
             return response.json();
         })
         .then(data => {
+            toggleLoader("stop");
             handlePollData(data);
             updateActivePosition(checkedPollSlug);
-            const isReversible = (slug) => slug.includes("-") ? reverseSlug(slug) : slug.charAt(0).toUpperCase() + slug.slice(1);
-            var reversedSlug = isReversible(checkedPollSlug);
-            var current_position = document.getElementById('current_position');
+            const isReversible = (slug) => slug.includes('-') ? reverseSlug(slug) : slug.charAt(0).toUpperCase() + slug.slice(1);
+            const reversedSlug = isReversible(checkedPollSlug);
+            const current_position = document.getElementById('current_position');
             current_position.innerText = reversedSlug;
-            var votingForm = document.getElementById("vote");
+            const votingForm = document.getElementById('vote');
             votingForm.action = `/vote/${checkedPollSlug}`;
-            votingForm.method = "POST";
+            votingForm.method = 'POST';
         })
         .catch(error => {
             console.error('There was a problem fetching the data:', error);
+            alert('An error occurred while fetching poll data');
         });
 }
+
 const handlePollData = (pollDataList) => {
+    console.log(pollDataList);
     // Select the card container
     const cardContainer = document.getElementById("card-container");
     cardContainer.innerHTML = "";
@@ -114,17 +133,31 @@ function vote(event) {
                 candidate: candidateValue
             }),
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
+                const nextPosition = data.next_position;
                 const message = data.message;
                 alert(message);
-            })
-            .catch(error => console.error(error));
-    } catch (TypeError) {
-        alert("Please, pick an option");
-    }
+                getPositions();
+                if (nextPosition !== null) { getPollData(nextPosition); }
+                else { getPollData(); }
 
+            })
+            .catch(error => {
+                console.error(error);
+                alert("An error occurred while processing the vote");
+            });
+    } catch (error) {
+        console.error(error);
+        alert("An error occurred while processing the vote");
+    }
 }
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -140,3 +173,4 @@ function getCookie(name) {
     return cookieValue;
 }
 getPollData();
+

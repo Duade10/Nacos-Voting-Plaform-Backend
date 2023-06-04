@@ -1,6 +1,3 @@
-{/* <h3 class="text-lg font-bold mb-4">President Votes</h3>
-<canvas class="canvas" id="" width="400" height="400"></canvas> */}
-
 const getPollPositions = async () => {
     try {
         const response = await fetch('/get-positions/');

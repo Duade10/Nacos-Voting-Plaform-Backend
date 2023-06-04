@@ -50,7 +50,6 @@ class HasUserVoted(mixins.LoggedInOnlyView, View):
     def get(self, request, position_slug, *args, **kwargs):
         current_user = request.user
         voted_position_slugs = [position.slug for position in current_user.voted_positions.all()]
-        print(position_slug in voted_position_slugs)
         if position_slug in voted_position_slugs:
             result = True
         else:
