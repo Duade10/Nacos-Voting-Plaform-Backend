@@ -23,3 +23,4 @@ class ItemAdmin(admin.ModelAdmin):
 @admin.register(models.Poll)
 class PollAdmin(admin.ModelAdmin):
     list_display = ("candidate", "position", "vote")
+    readonly_fields = ("vote", "user")

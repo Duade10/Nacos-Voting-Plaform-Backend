@@ -39,7 +39,7 @@ class Poll(AbstractTimestampModel):
     position = models.ForeignKey(Position, related_name="polls", on_delete=models.CASCADE)
     candidate = models.ForeignKey(Candidate, related_name="polls", on_delete=models.CASCADE)
     vote = models.IntegerField(default=0, blank=True, null=True)
-    user = models.ManyToManyField("users.User", blank=True)
+    user = models.ManyToManyField("users.User", verbose_name="Voter", blank=True)
 
     def __str__(self):
         return f"{self.candidate.name} - {self.position} - {self.vote}"
